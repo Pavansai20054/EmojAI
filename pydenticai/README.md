@@ -21,17 +21,16 @@ Pydantic AI is useful in multiple domains:
 
 ---
 
-## 🔧 Prerequisites
-Before using Pydantic AI, ensure you have the following:
-- **Python 3.7+** installed on your system.
+## 🛠 Explination about EmojAI
 
----
-
-## 🛠 How to Use Pydantic in an AI-Powered Python Application
-
-### 1️⃣ Install required modules
-```bash
-pip install pydantic requests python-dotenv
+### 1️⃣ Imported required modules
+```python
+import os
+import requests
+from pydantic import BaseModel, field_validator
+from typing import List
+from dotenv import load_dotenv
+import random
 ```
 
 ### 2️⃣ Implement AI-Powered Emoji Suggestion System
@@ -245,173 +244,80 @@ The `AIAgent` class is responsible for analyzing the sentiment of a given messag
 
 This AI Agent enhances communication by making text-based messages more engaging and expressive through accurate emoji suggestions! 🚀
 
----
 
+# 🚀 Installation Guide of EmojAI
 
-### 🛠 Complete AI-Powered Code
-```python
-import os
-import requests
-from pydantic import BaseModel, field_validator
-from typing import List
-from dotenv import load_dotenv
-import random
+### Prerequisites
+Before you begin, ensure you have the following installed:
+- Python 3.8+
+- pip (Python package manager)
+- Virtual environment (optional but recommended)
 
-# Load environment variables
-load_dotenv()
+### 📥 Step 1: Clone the Repository
 
-# --------------------------
-# Pydantic Models
-# --------------------------
-class EmojiSuggestion(BaseModel):
-    emojis: List[str]
-    message: str
-
-    @field_validator('emojis')
-    @classmethod
-    def validate_emojis(cls, v):
-        if len(v) < 3:
-            raise ValueError("At least 3 emojis required")
-        return v[:20]
-
-# --------------------------
-# Enhanced Sentiment Analysis
-# --------------------------
-class SentimentAnalyzer:
-    def __init__(self):
-        self.emoji_library = {
-            'happy': ["😀", "😃", "😄", "😁", "😆", "🥹", "😅", "😂", "🤣", "🥲"],
-            'sad': ["😢", "😭", "😤", "😠", "😡", "🤬", "🤯", "😳", "🥺", "😥"],
-            'love': ["🥰", "😍", "❤️", "🧡", "💛", "💚", "💙", "💜", "🤎", "🖤"],
-            'excited': ["🤩", "🥳", "😎", "🤠", "😏", "😸", "😹", "😺", "😻", "😼"],
-            'greeting': ["👋", "🤚", "🖐️", "✋", "🖖", "👌", "🤏", "✌️", "🤞", "🤟"],
-            'neutral': ["😐", "😑", "😶", "🫥", "😶‍🌫️", "🙄", "😏", "😒", "🤨", "🧐"]
-        }
-        
-        self.sentiment_map = {
-            'happy': ["happy", "joy", "good", "great", "awesome"],
-            'sad': ["sad", "bad", "upset", "unhappy"],
-            'love': ["love", "heart", "adore", "cherish"],
-            'excited': ["excited", "wow", "amazing", "thrilled"],
-            'greeting': ["hello", "hi", "hey", "greetings"]
-        }
-
-    def detect_sentiment(self, message: str) -> str:
-        lower_msg = message.lower()
-        for sentiment, keywords in self.sentiment_map.items():
-            if any(keyword in lower_msg for keyword in keywords):
-                return sentiment
-        if "?" in message:
-            return 'confused'
-        return 'neutral'
-
-    def get_emojis(self, sentiment: str) -> List[str]:
-        return self.emoji_library.get(sentiment, self.emoji_library['neutral'])
-
-# --------------------------
-# Updated Gemini API Client (using gemini-2.0-flash)
-# --------------------------
-class GeminiClient:
-    def __init__(self):
-        self.api_key = os.getenv("GEMINI_API_KEY")
-        if not self.api_key:
-            raise ValueError("API key not found")
-        self.base_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
-    
-    def generate(self, prompt: str) -> str:
-        try:
-            response = requests.post(
-                f"{self.base_url}?key={self.api_key}",
-                headers={'Content-Type': 'application/json'},
-                json={
-                    "contents": [{
-                        "parts": [{"text": prompt}]
-                    }]
-                },
-                timeout=10
-            )
-            response.raise_for_status()
-            data = response.json()
-            return data["candidates"][0]["content"]["parts"][0]["text"]
-        except Exception as e:
-            raise ValueError(f"API request failed: {str(e)}")
-
-# --------------------------
-# AI Agent
-# --------------------------
-class AIAgent:
-    def __init__(self):
-        self.gemini = GeminiClient()
-        self.sentiment = SentimentAnalyzer()
-    
-    def suggest_emojis(self, message: str) -> EmojiSuggestion:
-        try:
-            sentiment = self.sentiment.detect_sentiment(message)
-            prompt = f"Suggest 10 emojis for this {sentiment} message: '{message}'. Return only emojis separated by spaces."
-            response = self.gemini.generate(prompt)
-            emojis = response.strip().split()
-            return EmojiSuggestion(emojis=emojis[:15], message=message)
-        except Exception as e:
-            print(f"Using fallback emojis due to: {str(e)}")
-            sentiment = self.sentiment.detect_sentiment(message)
-            return EmojiSuggestion(
-                emojis=self.sentiment.get_emojis(sentiment),
-                message=message
-            )
-
-# --------------------------
-# CLI Interface
-# --------------------------
-def main():
-    print("\n🌟 Ultimate Emoji Suggester 🌟")
-    print("----------------------------")
-    print("Enter a message to get emoji suggestions!")
-    print("Type 'q' to quit\n")
-    
-    agent = AIAgent()
-    
-    while True:
-        message = input("Your message: ").strip()
-        if message.lower() == 'q':
-            print("\nGoodbye! 👋")
-            break
-        
-        if not message:
-            print("Please enter a message")
-            continue
-        
-        suggestion = agent.suggest_emojis(message)
-        print(f"\nFor: {suggestion.message}")
-        print("Emojis:", " ".join(suggestion.emojis))
-        print("="*50 + "\n")
-
-if __name__ == "__main__":
-    main()
+```sh
+git clone https://github.com/yourusername/emojai.git
+cd emojai
 ```
 
-### 💪 Final Thought
-Using **Pydantic AI** ensures structured, valid, and reliable AI-generated data, making it a powerful tool for AI-driven applications! 🚀🔥
+### 📦 Step 2: Create a Virtual Environment (Optional but Recommended)
 
-#### 📌 Example Output
-```python
-Message: "I am so happy today!"
-Suggested Emojis: 😊 🎉 👍 👏 ✨ 🥳 💯 🚀 🌟 🏆
-
-Your message: "I am feeling great today!"
-Emojis: 😀 😃 😄 😁 😆 🥹 😅 😂 🤣 🥲
+```sh
+python -m venv venv
+source venv/bin/activate  # On macOS/Linux
+venv\Scripts\activate     # On Windows
 ```
 
+### 📌 Step 3: Install Dependencies
+
+```sh
+pip install -r requirements.txt
+```
+
+### 🔑 Step 4: Set Up Environment Variables
+Create a `.env` file in the project root and add your **Gemini API Key**:
+
+```sh
+GEMINI_API_KEY=your_api_key_here
+```
+
+### ▶️ Step 5: Run the Application
+
+```sh
+python main.py
+```
+
+### ✅ You're All Set!
+Now, enter a message in the CLI, and EmojAI will suggest emojis based on sentiment. 🎉🚀
 
 ---
 
-## 🎯 Final Thoughts on Pydantic AI
-### ✅ **Pros:**
-- Ensures structured data.
-- Prevents API errors.
-- Easy integration with AI.
+### 🛠 Troubleshooting
+- If you face issues with dependencies, try:
+  
+  ```sh
+  pip install --upgrade pip
+  pip install -r requirements.txt
+  ```
+- Ensure your `.env` file is correctly configured.
+- Check if the `requests` module is installed:  
+  
+  ```sh
+  pip install requests
+  ```
 
-### ❌ **Cons:**
-- Slight learning curve.
-- Requires AI API setup.
+For any issues, feel free to open an issue in the repository! 😊
 
-Using **Pydantic AI** ensures that AI-generated data remains structured, valid, and reliable, making it a powerful tool for AI-driven applications! 🚀🔥
+---
+
+## 👥 Team Member
+📧 **Wagmare Sanjana**: wagmaresanjana5@gmail.com  
+🔗 **LinkedIn**: [Wagmare Sanjana](https://www.linkedin.com/in/wagmare-sanjana)  
+🔗 **GitHub**: [Sanjana's GitHub](https://github.com/WAGMARESANJANA)  
+
+## 📩 Contact
+
+For any inquiries, reach out to us at: 
+
+📧 Email: psai49779@gmail.com   
+🔗 LinkedIn: https://www.linkedin.com/in/rangdal-pavansai/
